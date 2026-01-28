@@ -54,6 +54,65 @@
             background-color: #e0e0e0; 
         }
     </style>
+    <script>
+        function filterLocations() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const ul = document.getElementById('locations');
+            const li = ul.getElementsByTagName('li');
+            for (let i = 0; i < li.length; i++) {
+                const a = li[i].getElementsByTagName('a')[0];
+                const textValue = a.textContent || a.innerText;
+                li[i].style.display = textValue.toLowerCase().includes(filter) ? "" : "none";
+            }
+        }
+         // Function to speak text
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(utterance);
+        }
+
+        // Add speech synthesis and delayed redirect on list item click
+        document.addEventListener("DOMContentLoaded", () => {
+            const links = document.querySelectorAll("#locations li a");
+            links.forEach(link => {
+                link.addEventListener("click", (event) => {
+                    event.preventDefault();
+
+                    // 1. Handle Speech Synthesis
+                    const locationName = link.textContent.trim();
+                    let cleanLocationName = locationName;
+                    if (locationName.startsWith("OU- ")) {
+                        cleanLocationName = locationName.substring("OU- ".length);
+                    }
+                    const phraseToSpeak = "navigating to " + cleanLocationName;
+                    speak(phraseToSpeak);
+
+                    // 2. Prepare for Delayed Redirect
+                    const targetUrl = link.href;
+                    const targetWindow = link.target;
+
+                    // Optional: Provide visual feedback to the user
+                    const originalLinkText = link.textContent;
+                    link.style.color = "orange";
+
+                    // 3. Set the Timeout for Redirection
+                    setTimeout(() => {
+                        if (targetWindow === '_blank') {
+                            window.open(targetUrl, '_blank');
+                        } else {
+                            window.location.href = targetUrl;
+                        }
+
+                        if (targetWindow === '_blank') {
+                            link.textContent = originalLinkText;
+                            link.style.color = "";
+                        }
+                    }, 4500);
+                });
+            });
+        });
+    </script>
 </head>
 <body>
     <center>
